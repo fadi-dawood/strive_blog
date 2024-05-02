@@ -3,7 +3,6 @@ import { Button, Container, Form } from "react-bootstrap";
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import "./styles.css";
-import { convertToRaw } from "draft-js"
 import draftToHtml from "draftjs-to-html"
 
 
@@ -14,39 +13,29 @@ const NewBlogPost = props => {
   const [title, setTitle] = useState("");
   const [durata, setDurata] = useState("");
   const [durataUnita, setDurataUnita] = useState("");
-  // const [image, setImage] = useState(null);
+  const [image, setImage] = useState(null);
 
   const handleChange = useCallback(value => {
     setText(draftToHtml(value));
     // console.log(convertToRaw(value.getCurrentContent()))
   });
 
-  // const handleImageChange = event => {
-  //   const file = event.target.files[0];
-  //   setImage(file);
-  // };
+  const handleImageChange = event => {
+    const file = event.target.files[0];
+    setImage(file);
+  };
 
   const handleSubmit = async event => {
 
     event.preventDefault();
 
-    const formData = {
-      title: title,
-      category: category,
-      content: text,
-      readTime: {
-        value: durata,
-        unit: durataUnita
-      }
-    };
-
-    // const formData = new FormData();
-    // formData.append("title", title);
-    // formData.append("category", category);
-    // formData.append("content", text);
-    // formData.append("readTime[value]", durata);
-    // formData.append("readTime[unit]", durataUnita);
-    // formData.append("image", image);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("content", text);
+    formData.append("readTime[value]", durata);
+    formData.append("readTime[unit]", durataUnita);
+    formData.append("cover", image);
 
 
     // contollare che tutto il form è stato compilato
@@ -65,18 +54,17 @@ const NewBlogPost = props => {
       const response = await fetch('http://localhost:3001/blogPost/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${localStorage.getItem("token")}`
         },
-        body: JSON.stringify(formData)
+        body: formData
       });
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
-      // Handle successful response
       console.log('Blog post submitted successfully!');
-      // Optionally, redirect or perform other actions upon success
+
     } catch (error) {
       console.error('There was a problem with your fetch operation:', error);
     }
@@ -134,10 +122,10 @@ const NewBlogPost = props => {
         </Form.Group>
 
         {/* per il caricamento delle foto */}
-        {/* <Form.Group controlId="blog-image" className="mt-3">
+        <Form.Group controlId="blog-image" className="mt-3">
           <Form.Label>Carica immagine</Form.Label>
           <Form.Control type="file" onChange={handleImageChange} />
-        </Form.Group> */}
+        </Form.Group>
 
         <Form.Group className="d-flex mt-3 justify-content-end">
           <Button type="reset" size="lg" variant="outline-dark" onClick={resetForm}>

@@ -1,47 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Container, Image } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import BlogAuthor from "../../components/blog/blog-author/BlogAuthor";
 import BlogLike from "../../components/likes/BlogLike";
+import { URLSContext } from "../../ContextProvider/URLContextProvider";
 import "./styles.css";
+import BlogComments from "../../components/comments/blog-comments/BlogComments";
+import NewComment from "../../components/comments/new-comment/NewComment";
 
 
 
 const Blog = props => {
+  // i variabili del dataform:
   const [blog, setBlog] = useState({});
   const [loading, setLoading] = useState(true);
   const params = useParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const { id } = params;
+  // URL context provider
+  const { APIURL } = useContext(URLSContext);
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/blogPost/${id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
 
-        if (!response.ok) {
-          throw new Error("Error")
+  // l'id del post
+  const { id } = params;
+
+  // chiamata fetch 
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`${APIURL}blogPost/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("token")}`,
+          'Content-Type': 'application/json'
         }
+      });
 
-        const blogData = await response.json();
-        setBlog(blogData);
-        setLoading(false);
-
-      } catch (err) {
-        console.error('There was a problem with your fetch operation:', err);
-        setLoading(false);
-        navigate("/404");
+      // se le risposta del server è negativa
+      if (!response.ok) {
+        throw new Error("Error")
       }
-    }
 
+
+      const blogData = await response.json();
+      setBlog(blogData);
+      setLoading(false);
+      console.log(blog.comments)
+    } catch (err) {
+      console.error('There was a problem with your fetch operation:', err);
+      setLoading(false);
+      navigate("/404");
+    }
+  }
+
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, [blog]);
 
 
   if (loading) {
@@ -75,7 +88,21 @@ const Blog = props => {
               __html: blog.content,
             }}
           ></div>
+          <div className="my-5">
+            <h3>Comments:</h3>
+
+            {blog.comments.map((comment, i) => (
+              <BlogComments key={i} comment={comment} />
+            ))}
+
+          </div>
+
+          <div>
+            <h4>Aggiungi un commento:</h4>
+            <NewComment ></NewComment>
+          </div>
         </Container>
+
       </div>
     );
   }

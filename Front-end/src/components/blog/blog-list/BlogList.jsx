@@ -1,4 +1,4 @@
-import  {React, useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
 import posts from "../../../data/posts.json";
 import BlogItem from "../blog-item/BlogItem";
@@ -15,10 +15,11 @@ const BlogList = props => {
         const response = await fetch(`http://localhost:3001/blogPost/`, {
           method: 'GET',
           headers: {
+            'Authorization': `Bearer ${localStorage.getItem("token")}`,
             'Content-Type': 'application/json'
           }
         });
-
+        //console.log(`Bearer ${localStorage.getItem("token")}`)
         if (!response.ok) {
           throw new Error("Error")
         }

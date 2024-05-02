@@ -42,11 +42,11 @@ const blogPostSchema = new Schema(
             {
                 user: {
                     type: String,
-                    require: false
+                    require: true
                 },
                 comment_content: {
                     type: String,
-                    require: false
+                    require: true
                 }
             }
         ]

@@ -3,6 +3,7 @@ import Author from "../models/authors.model.js";
 import cloudinaryMiddleware from "../middlewares/avatar.js"
 import { newAuthorMail } from "../mail/newAuthorMail.js";
 import bcrypt from "bcryptjs";
+import { generateJWT } from "../middlewares/auth.js";
 
 // Creiamo un nuovo Router 
 const authorRoute = Router();
@@ -34,23 +35,8 @@ authorRoute.get("/:id", async (req, res) => {
     }
 });
 
-// Richiesta POST
-authorRoute.post("/", async (req, res) => {
-    try {
-        // creare l'autore
-        let author = await Author.create({
-            ...req.body,
-            password: await bcrypt.hash(req.body.password,10),
-        });
-        // mandare la risposta
-        res.send(author);
 
-        //mail di conferma:
-        newAuthorMail();
-    } catch (err) {
-        console.error(err)
-    }
-})
+
 
 // Richiesta PUT
 authorRoute.put("/:id", async (req, res) => {

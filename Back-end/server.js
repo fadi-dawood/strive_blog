@@ -3,6 +3,8 @@ import { config } from "dotenv";
 import mongoose from "mongoose";
 import authorRoute from './services/routes/author.route.js';
 import blogPostRouter from "./services/routes/blogPost.route.js";
+import { authMiddleware } from "./services/middlewares/auth.js";
+import logRoute from "./services/routes/log.route.js";
 import cors from "cors";
 
 // caricare le variabili da .env
@@ -26,11 +28,12 @@ const PORT = 3001;
 app.use(express.json());
 
 // Importa routes:
-
+// http/localhost:3000/login
+app.use("/log", logRoute);
 // http/localhost:3000/authors
-app.use("/authors", authorRoute);
+app.use("/authors", authMiddleware, authorRoute);
 // http/localhost:3000/blogPost
-app.use("/blogPost", blogPostRouter);
+app.use("/blogPost", authMiddleware, blogPostRouter);
 
 
 // Funzione per inizializzare il server

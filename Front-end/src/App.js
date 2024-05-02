@@ -3,20 +3,30 @@ import NavBar from "./components/navbar/BlogNavbar";
 import Footer from "./components/footer/Footer";
 import Home from "./views/home/Home";
 import Blog from "./views/blog/Blog";
+import LogIn from "./views/login/LogIn";
 import NewBlogPost from "./views/new/New";
+import "./App.css"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Register from "./views/Register/Register";
+import URLSContextProvider from "./ContextProvider/URLContextProvider";
 
 function App() {
   return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" exact element={<Home />} />
-        <Route path="/blogpost/:id" element={<Blog />} />
-        <Route path="/new" element={<NewBlogPost />} />
-      </Routes>
-      <Footer />
-    </Router>
+    <>
+      <URLSContextProvider>
+        <Router>
+          <NavBar />
+          <Routes>
+            <Route path="/log/login" exact element={<LogIn />} />
+            <Route path="/log/Register" exact element={<Register />} />
+            <Route path="/home" exact element={<Home />} />
+            <Route path="/blogpost/:id" element={<Blog />} />
+            <Route path="/new" element={<NewBlogPost />} />
+          </Routes>
+          <Footer />
+        </Router>
+      </URLSContextProvider>
+    </>
   );
 }
 

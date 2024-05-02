@@ -5,6 +5,7 @@ import { newPostMail } from "../mail/newPostMail.js";
 import { Types } from 'mongoose';
 
 
+
 // creare una rotta:
 const blogPostRouter = Router();
 
@@ -32,13 +33,23 @@ blogPostRouter.get("/:id", async (req, res) => {
 })
 
 // add new post
-blogPostRouter.post("/", async (req, res) => {
+blogPostRouter.post("/", cloudinaryMiddleware, async (req, res) => {
     try {
-        const post = await blogPost.create(req.body);
-        res.send(post);
 
+        // preparare l'oggetto del post da salvare nella database
+        const post = await blogPost.create({
+            ...req.body,
+            cover: req.file.path,
+            author: {
+                name: req.user.name,
+                avatar: req.user.avatar || "",
+            }
+        });
+
+        res.send(post);
         // mail di conferma
         newPostMail();
+
     } catch (err) {
         console.error(err);
     }
@@ -125,16 +136,20 @@ blogPostRouter.get("/:id/comments/:commentId", async (req, res, next) => {
 blogPostRouter.post("/:id", async (req, res, next) => {
     try {
         const postId = req.params.id;
-        const { user, comment_content } = req.body;
 
         const post = await blogPost.findById(postId);
         if (!post) {
             return res.status(404).send("Blog post not found");
         };
 
-        const commentId = new Types.ObjectId();
+       const commentId = new Types.ObjectId();
 
-        post.comments.push({ _id: commentId, user, comment_content });
+
+        post.comments.push({
+            _id: commentId,
+            user: req.user.userName,
+            comment_content: req.body.comment_content
+        });
 
         await post.save();
 
