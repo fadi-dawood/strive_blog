@@ -8,12 +8,13 @@ import { newAuthorMail } from "../mail/newAuthorMail.js";
 // Creiamo un nuovo Router 
 const logRoute = Router();
 
-
+// richiesta login
+//^ OK
 logRoute.post("/login", async (req, res, next) => {
     try {
         // trovare il user
         let foundUser = await Author.findOne({
-            
+
             userName: req.body.userName,
         });
 
@@ -43,8 +44,22 @@ logRoute.post("/login", async (req, res, next) => {
 
 
 // Richiesta POST new user
+//^ OK
 logRoute.post("/register", async (req, res) => {
     try {
+        // controllare se il username sia disponibile
+        let chosenUserName = req.body.userName;
+
+        let isUserNameAviable = await Author.findOne({
+            userName: chosenUserName
+        })
+
+        if (isUserNameAviable) {
+            res.status(400).send("user name is not aviable");
+            console.log("user name is not aviable")
+            return;
+        }
+
         // creare l'autore
         let author = await Author.create({
             ...req.body,

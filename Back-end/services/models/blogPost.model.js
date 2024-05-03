@@ -25,6 +25,10 @@ const blogPostSchema = new Schema(
             }
         },
         author: {
+            author_id: {
+                type: String,
+                require: false
+            },
             name: {
                 type: String,
                 require: false
@@ -40,6 +44,10 @@ const blogPostSchema = new Schema(
         },
         comments: [
             {
+                user_id: {
+                    type: String,
+                    require: false
+                },
                 user: {
                     type: String,
                     require: true

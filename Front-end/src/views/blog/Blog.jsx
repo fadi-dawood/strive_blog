@@ -16,6 +16,7 @@ const Blog = props => {
   const [loading, setLoading] = useState(true);
   const params = useParams();
   const navigate = useNavigate();
+  const [authorId, setAuthorId] = useState();
 
   // URL context provider
   const { APIURL } = useContext(URLSContext);
@@ -40,11 +41,15 @@ const Blog = props => {
         throw new Error("Error")
       }
 
-
       const blogData = await response.json();
+
+      // aggiornare l'id del creattore del blog per confrontarlo dopo con l'id di ogni commento
+      setAuthorId(blogData.author.author_id);
+
+      console.log( blogData)
+
       setBlog(blogData);
       setLoading(false);
-      console.log(blog.comments)
     } catch (err) {
       console.error('There was a problem with your fetch operation:', err);
       setLoading(false);
@@ -52,9 +57,15 @@ const Blog = props => {
     }
   }
 
+  // avviare la fetch al caricamento della pagina
   useEffect(() => {
     fetchData();
-  }, [blog]);
+  }, []);
+
+  // rifare la fetch per aggiornare i commenti
+  function downloadComments() {
+    fetchData();
+  };
 
 
   if (loading) {
@@ -65,6 +76,7 @@ const Blog = props => {
         <Container>
           <Image className="blog-details-cover" src={blog.cover} fluid />
           <h1 className="blog-details-title">{blog.title}</h1>
+
 
           <div className="blog-details-container">
             <div className="blog-details-author">
@@ -83,23 +95,25 @@ const Blog = props => {
             </div>
           </div>
 
+
           <div
             dangerouslySetInnerHTML={{
               __html: blog.content,
             }}
           ></div>
+
+
           <div className="my-5">
             <h3>Comments:</h3>
-
             {blog.comments.map((comment, i) => (
-              <BlogComments key={i} comment={comment} />
+              <BlogComments key={i} comment={comment} downloadComments={downloadComments} />
             ))}
-
           </div>
+
 
           <div>
             <h4>Aggiungi un commento:</h4>
-            <NewComment ></NewComment>
+            <NewComment downloadComments={downloadComments}></NewComment>
           </div>
         </Container>
 

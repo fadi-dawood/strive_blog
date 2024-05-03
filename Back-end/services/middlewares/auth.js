@@ -59,7 +59,6 @@ export const authMiddleware = async (req, res, next) => {
         delete decoded.exp;
         
         // Andiamo a trovare l'utente con i dati del payload(ID)
-        console.log(decoded)
         const me = await Author.findOne({
           ...decoded,
         });

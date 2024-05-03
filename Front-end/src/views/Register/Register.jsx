@@ -60,25 +60,37 @@ export default function Register() {
                 },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+
+            // se il user name non è valido
+            if (response.status == 400) {
+                document.getElementById("alertUserNameToken").classList.remove("d-none");
+                setTimeout(() => {
+                    document.getElementById("alertUserNameToken").classList.add("d-none")
+                }, 5000);
+                setUsername("");
+                return;
             }
 
-            // mostrare un messaggio che l'operazione è andata a buon fine
-            document.getElementById("accountCreated").classList.remove("d-none");
-            setTimeout(() => {
-                document.getElementById("accountCreated").classList.add("d-none")
-            }, 5000);
+            // altri errori
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            } else {
 
-            //pulire il form:
-            setName("");
-            setSurname("");
-            setEmail("");
-            setUsername("");
-            setDateOfBirth("");
-            setPassword("");
-            setVerificapass("");
+                // mostrare un messaggio che l'operazione è andata a buon fine
+                document.getElementById("accountCreated").classList.remove("d-none");
+                setTimeout(() => {
+                    document.getElementById("accountCreated").classList.add("d-none")
+                }, 5000);
 
+                //pulire il form:
+                setName("");
+                setSurname("");
+                setEmail("");
+                setUsername("");
+                setDateOfBirth("");
+                setPassword("");
+                setVerificapass("");
+            }
 
         } catch (err) {
             console.error(err);
@@ -130,12 +142,13 @@ export default function Register() {
                     <Form.Control value={verificapass} type="password" placeholder="Password" onChange={e => setVerificapass(e.target.value)} />
                 </Form.Group>
 
-                <Alert id='alertPassword' className='d-none' variant='danger'> le due password non combaciano </Alert>
+                <Alert id='alertPassword' className='d-none' variant='danger'> le due password non combaciano!</Alert>
 
-                <Alert id='alertBoxNotFilled' className='d-none' variant='danger'> Alcuni campi sono obligattori </Alert>
+                <Alert id='alertBoxNotFilled' className='d-none' variant='danger'> Alcuni campi sono obligattori!</Alert>
 
                 <Alert id='accountCreated' className='d-none' variant='success '> il tuo account è stato creato correttamente </Alert>
 
+                <Alert id='alertUserNameToken' className='d-none' variant='danger'>Questo user name non è disponibile!</Alert>
 
                 <div className='d-flex justify-content-between align-items-center'>
                     <Button variant="primary" type="button" onClick={createAcount}>
@@ -143,7 +156,7 @@ export default function Register() {
                     </Button>
                     <div className='d-flex justify-content-center align-items-center gap-4'>
                         <p className='m-0'>Oppure hai già un account!</p>
-                        <Link to="/" variant="primary" type="submit">
+                        <Link to="/log/login" variant="primary" type="submit">
                             Login
                         </Link>
                     </div>

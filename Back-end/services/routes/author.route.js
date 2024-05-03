@@ -9,6 +9,7 @@ import { generateJWT } from "../middlewares/auth.js";
 const authorRoute = Router();
 
 // Richiesta GET generica
+//! non serve
 authorRoute.get("/", async (req, res) => {
     try {
         // mandiamo una risposta con tutta la lista degli attori
@@ -20,6 +21,7 @@ authorRoute.get("/", async (req, res) => {
 });
 
 // Richiesta GET di un'attore specifico
+//! per fare una pagina profilo
 authorRoute.get("/:id", async (req, res) => {
     try {
         // cercare l'autore richiesto
@@ -35,10 +37,8 @@ authorRoute.get("/:id", async (req, res) => {
     }
 });
 
-
-
-
 // Richiesta PUT
+//! modofocare profilo
 authorRoute.put("/:id", async (req, res) => {
     try {
         // eseguire la modifica
@@ -58,6 +58,7 @@ authorRoute.put("/:id", async (req, res) => {
 })
 
 // Richiesta DELETE
+//! da fare
 authorRoute.delete("/:id", async (req, res) => {
     try {
         // controllare se l'id è valido
@@ -78,8 +79,8 @@ authorRoute.delete("/:id", async (req, res) => {
     }
 })
 
-
 // Patch IMG:
+//! da fare
 authorRoute.patch("/:id/avatar", cloudinaryMiddleware, async (req, res) => {
     try {
         let updatedUser = await Author.findByIdAndUpdate(req.params.id,
