@@ -1,12 +1,12 @@
 import { Router } from "express";
 import Author from "../models/authors.model.js";
-import cloudinaryMiddleware from "../middlewares/avatar.js"
-import { newAuthorMail } from "../mail/newAuthorMail.js";
+import cloudinaryMiddleware from "../middlewares/avatar.js";
 import bcrypt from "bcryptjs";
-import { generateJWT } from "../middlewares/auth.js";
+
 
 // Creiamo un nuovo Router 
 const authorRoute = Router();
+
 
 // Richiesta GET generica
 //! non serve
@@ -21,14 +21,24 @@ authorRoute.get("/", async (req, res) => {
 });
 
 // Richiesta GET di un'attore specifico
-//! per fare una pagina profilo
-authorRoute.get("/:id", async (req, res) => {
+//^ok
+authorRoute.get("/logged-user", async (req, res) => {
     try {
         // cercare l'autore richiesto
-        let author = await Author.findById(req.params.id);
+        let author = await Author.findById(req.user._id);
+
         // mandare la risposta
         if (author) {
-            res.send(author);
+            let user = {
+                name: author.name,
+                lastName: author.lastName,
+                avatar: author.avatar || "",
+                userName: author.userName,
+                email: author.email,
+                date_of_birht: author.date_of_birht,
+            };
+            console.log(user)
+            res.send(user);
         } else {
             res.status(404).send("Author not found");
         }
@@ -38,24 +48,56 @@ authorRoute.get("/:id", async (req, res) => {
 });
 
 // Richiesta PUT
-//! modofocare profilo
-authorRoute.put("/:id", async (req, res) => {
+//! modifocare profilo
+authorRoute.put("/", async (req, res) => {
+    
     try {
-        // eseguire la modifica
-        let author = await Author.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-        });
+        // trovare il user
+        let foundUser = await Author.findById(req.user._id);
+        console.log(foundUser);
+        if (foundUser) {
 
-        // mandare la risposta
-        if (author) {
-            res.send(author);
+            // controllare la password
+            const isPasswordMatching = await bcrypt.compare(
+                req.body.password,
+                foundUser.password
+            );
+            console.log(foundUser.password);
+
+            console.log(isPasswordMatching);
+            if (isPasswordMatching) {
+
+                // controllare se il nuovo username sia disponibile
+                const isUsernameAviable = await Author.findOne({
+                    userName: req.body.userName
+                });
+
+                if (!isUsernameAviable) {
+                    // eseguire la modifica senza modificare la password
+                    let newAuthor = req.body
+                    delete newAuthor.password
+                    let author = await Author.findByIdAndUpdate(foundUser._id, newAuthor, {
+                        new: true,
+                    });
+                    res.send(author);
+                } else {
+                    res.status(400).send("user name non aviable");
+                    
+                };
+            } else {
+                res.status(406).send("non valid password");
+                //res.status(400).json({ error: "non valid password" });
+
+            };
+
         } else {
-            res.status(404).send("Author not found");
-        }
+            res.status(404).send(req.body.userName + "user non trovato");
+        };
+
     } catch (err) {
         console.error(err);
-    }
-})
+    };
+});
 
 // Richiesta DELETE
 //! da fare

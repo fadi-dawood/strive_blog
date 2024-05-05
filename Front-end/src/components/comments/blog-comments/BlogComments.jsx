@@ -62,7 +62,7 @@ export default function BlogComments({ comment, downloadComments }) {
     return (
         <div>
             <Container>
-                <Card className='my-3 py-1'>
+                <Card className='my-3 py-1 border-0'>
                     <CardGroup xs={2}>
                         <Card.Title className='p-0 m-0'>{comment.user}</Card.Title>
                     </CardGroup>
@@ -70,15 +70,14 @@ export default function BlogComments({ comment, downloadComments }) {
                         <Card.Body className='p-0 m-0'>{comment.comment_content}</Card.Body>
                         {(comment.isCommentOfLoggedUser) &&
                             <div>
-                                <Button variant="primary" className='mx-2' onClick={modifyComment}>
+                                <Button variant="outline-secondary" className='mx-2' onClick={modifyComment}>
                                     <FontAwesomeIcon icon={faPencil} />
                                 </Button>
-                                <Button variant="danger" className='mx-2' onClick={deleteComment}>
+                                <Button variant="outline-danger" className='mx-2' onClick={deleteComment}>
                                     <FontAwesomeIcon icon={faTrash} />
                                 </Button>
                             </div>
                         }
-
                     </CardGroup>
                     {showInputModify &&
                         <NewComment downloadComments={downloadComments} setShowInputModify={setShowInputModify} commentToBeModified={comment}></NewComment>
@@ -86,6 +85,7 @@ export default function BlogComments({ comment, downloadComments }) {
                 </Card>
 
             </Container>
+            <hr />
         </div>
     )
 }

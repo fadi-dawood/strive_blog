@@ -15,7 +15,7 @@ export default function NewComment({ downloadComments, commentToBeModified = "",
   const { APIURL } = useContext(URLSContext);
 
 
-  // New comment
+  //^ New comment
   async function sendNewComment() {
     const { id } = params;
 
@@ -56,7 +56,11 @@ export default function NewComment({ downloadComments, commentToBeModified = "",
     };
   };
 
-  // Modificare il commento
+
+
+
+
+  //^ Modificare il commento
   async function modifyComment() {
     const { id } = params;
 
@@ -103,22 +107,34 @@ export default function NewComment({ downloadComments, commentToBeModified = "",
   return (
     <div>
       <InputGroup className="mb-3">
-        <Form.Control
-          placeholder="Aggiungi il tuo commento..."
-          aria-label="Recipient's username"
-          aria-describedby="basic-addon2"
-          value={comment}
-          onChange={e => setComment(e.target.value)}
-        />
         {!commentToBeModified &&
-          <Button variant="primary" id="button-addon2" onClick={sendNewComment}>
-            Invia
-          </Button>
+          <>
+            <Form.Control
+              placeholder="Aggiungi il tuo commento..."
+              aria-label="Recipient's username"
+              aria-describedby="basic-addon2"
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+            />
+            <Button variant="primary" id="button-addon2" onClick={sendNewComment}>
+              Invia
+            </Button>
+          </>
         }
         {commentToBeModified &&
-          <Button variant="primary" id="button-addon2" onClick={modifyComment}>
-            Modifica
-          </Button>
+          <>
+            <Form.Control
+              placeholder="Modifica qua il tuo commento..."
+              aria-label="Recipient's username"
+              aria-describedby="basic-addon2"
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+            />
+            <Button variant="primary" id="button-addon2" onClick={modifyComment}>
+              Modifica
+            </Button>
+
+          </>
         }
       </InputGroup>
       <Alert className="d-none" id="faild-comment" variant="danger">Qualcosa è andata storta!</Alert>

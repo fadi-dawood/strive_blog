@@ -9,6 +9,7 @@ import "./App.css"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./views/Register/Register";
 import URLSContextProvider from "./ContextProvider/URLContextProvider";
+import MyProfile from "./views/Profile/Profile";
 
 function App() {
   return (
@@ -20,8 +21,10 @@ function App() {
             <Route path="/log/login" exact element={<LogIn />} />
             <Route path="/log/Register" exact element={<Register />} />
             <Route path="/home" exact element={<Home />} />
+            <Route path="/blogpost/:id/modify" element={<NewBlogPost />} />
             <Route path="/blogpost/:id" element={<Blog />} />
             <Route path="/new" element={<NewBlogPost />} />
+            <Route path="/myprofile" element={<MyProfile />} />
           </Routes>
           <Footer />
         </Router>

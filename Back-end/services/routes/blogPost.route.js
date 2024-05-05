@@ -6,6 +6,7 @@ import { Types } from 'mongoose';
 
 
 
+
 // creare una rotta:
 const blogPostRouter = Router();
 
@@ -58,7 +59,7 @@ blogPostRouter.get("/:id", async (req, res) => {
 
 // add new post
 //^ OK
-blogPostRouter.post("/", async (req, res, next) => {
+blogPostRouter.post("/",cloudinaryMiddleware, async (req, res, next) => {
     try {
 
         // preparare l'oggetto del post da salvare nella database
@@ -84,18 +85,27 @@ blogPostRouter.post("/", async (req, res, next) => {
 })
 
 // modify post
-//! Da fare
-blogPostRouter.put("/:id", async (req, res) => {
+//^ Ok
+blogPostRouter.put("/:id/modify", cloudinaryMiddleware, async (req, res, next) => {
+    console.error(req.body);
     try {
-        const post = await blogPost.findByIdAndUpdate(req.params.id, req.body, { new: true })
-        res.send(post);
+        const updatedPost = await blogPost.findByIdAndUpdate(req.params.id,
+            {
+                ...req.body,
+                cover: req.file.path
+            },
+            { new: true })
+        console.log(updatedPost);
+        res.send(updatedPost);
     } catch (err) {
         console.error(err);
+        res.send("Error");
+        next();
     }
 })
 
 // delete post
-//! Da fare
+//^ Ok
 blogPostRouter.delete("/:id", async (req, res) => {
     try {
         let post = req.params.id;
@@ -113,18 +123,18 @@ blogPostRouter.delete("/:id", async (req, res) => {
 
 // Patch PostImg:
 //! Da fare
-blogPostRouter.patch("/:id/cover", cloudinaryMiddleware, async (req, res) => {
-    try {
-        let updatedPost = await blogPost.findByIdAndUpdate(req.params.id,
-            { cover: req.file.path },
-            { new: true }
-        );
-        res.send(updatedPost);
-    } catch (err) {
-        console.log(err);
-        next(err);
-    }
-})
+// blogPostRouter.patch("/:id/cover", cloudinaryMiddleware, async (req, res) => {
+//     try {
+//         let updatedPost = await blogPost.findByIdAndUpdate(req.params.id,
+//             { cover: req.file.path },
+//             { new: true }
+//         );
+//         res.send(updatedPost);
+//     } catch (err) {
+//         console.log(err);
+//         next(err);
+//     }
+// })
 
 
 // Get all comments of a blog

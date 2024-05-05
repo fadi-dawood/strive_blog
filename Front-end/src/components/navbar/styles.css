@@ -18,3 +18,8 @@
   width: 160px;
   text-decoration: none;
 }
+
+.img-profile{
+  height: 50px;
+  border-radius: 50%;
+}

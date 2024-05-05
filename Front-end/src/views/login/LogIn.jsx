@@ -47,6 +47,9 @@ export default function LogIn() {
 
                 // rimandare alla home page
                 navigate("/home");
+                // aggiornare la pagine per aggirnare il nome nella navbar
+                window.location.reload();
+
 
                 // gestire le risposte negative
             } else if (response.status == 404) {
@@ -89,7 +92,7 @@ export default function LogIn() {
                     </Button>
                     <div className='d-flex justify-content-center align-items-center gap-4'>
                         <p className='m-0'>Oppure sei nuovo?</p>
-                        <Link to="/register" variant="primary" type="button">
+                        <Link to="/log/register" variant="primary" type="button">
                             Registera
                         </Link>
                     </div>
