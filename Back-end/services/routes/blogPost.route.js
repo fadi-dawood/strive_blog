@@ -5,8 +5,6 @@ import { newPostMail } from "../mail/newPostMail.js";
 import { Types } from 'mongoose';
 
 
-
-
 // creare una rotta:
 const blogPostRouter = Router();
 
@@ -59,7 +57,7 @@ blogPostRouter.get("/:id", async (req, res) => {
 
 // add new post
 //^ OK
-blogPostRouter.post("/",cloudinaryMiddleware, async (req, res, next) => {
+blogPostRouter.post("/", cloudinaryMiddleware, async (req, res, next) => {
     try {
 
         // preparare l'oggetto del post da salvare nella database
@@ -273,4 +271,22 @@ blogPostRouter.delete("/:id/comment/:commentId", async (req, res, next) => {
 })
 
 
+// Get tutti i post di un autore specifico
+//^ Ok
+blogPostRouter.get("/profile/blogs", async (req, res) => {
+    try {
+        // Assuming req.user.user_id is the author's ID
+        const authorId = req.user._id;
+
+        // mandiamo una risposta con tutta la lista degli attori
+        const Posts = await blogPost.find({
+            'author.author_id': authorId
+        });
+
+        res.send(Posts);
+    } catch (err) {
+        console.error(err);
+        res.send(err);
+    };
+});
 export default blogPostRouter;

@@ -9,20 +9,22 @@ import { faPencil } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
-import { Link, json } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Col, Row } from "react-bootstrap";
+import BlogItem from '../../components/blog/blog-item/BlogItem';
+
 
 
 export default function MyProfile() {
+    //^ Variabili
     // API URL 
     const { APIURL } = useContext(URLSContext);
     // i dati del user già loggato 
     const [user, setUser] = useState("");
-
     // variabili per il modale
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-
     // i variabili per il modale per la modifica dei dati del utente
     const [name, setName] = useState(user.name);
     const [surname, setSurname] = useState("");
@@ -30,10 +32,13 @@ export default function MyProfile() {
     const [username, setUsername] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
     const [password, setPassword] = useState("");
+    // variabili per getAllMyBlogs()
+    const [blogs, setBlogs] = useState([]);
 
 
-    // ottenere i dati del user già loggato
-    async function getLoggedUser() {
+    //^-----------------------------------------------------------------------------------------------------------------------//
+    //^ ottenere i dati del user già loggato
+    async function getLoggedUserData() {
         try {
             const response = await fetch(`${APIURL}authors/logged-user`, {
                 method: 'GET',
@@ -45,18 +50,15 @@ export default function MyProfile() {
 
             const userData = await response.json();
             setUser(userData);
-            console.log(user);
         } catch (err) {
             console.log(err);
         };
     };
 
-    useEffect(() => {
-        getLoggedUser();
-    }, []);
 
 
-
+    //^-----------------------------------------------------------------------------------------------------------------------//
+    //^ Modifica i dati del profilo
     async function modifyProfile() {
 
         // controllare se il user ha compilato tutti i cambi
@@ -116,7 +118,7 @@ export default function MyProfile() {
                 setTimeout(() => {
                     document.getElementById("alertPassword").classList.add("d-none")
                 }, 5000);
-                setUsername("");
+                setPassword("");
                 return;
             }
 
@@ -133,14 +135,12 @@ export default function MyProfile() {
 
             // altri errori
             else {
-                throw new Error('Network response was not ok');
-                document.getElementById("alertPassword").classList.remove("d-none");
+                document.getElementById("alertError").classList.remove("d-none");
                 setTimeout(() => {
-                    document.getElementById("alertPassword").classList.add("d-none")
+                    document.getElementById("alertError").classList.add("d-none")
                 }, 5000);
-                setUsername("");
-                return;
-            } ;
+                throw new Error('Network response was not ok');
+            };
 
 
 
@@ -149,11 +149,46 @@ export default function MyProfile() {
         }
     };
 
+
+    //^-----------------------------------------------------------------------------------------------------------------------//
+    //^Ottenere tutti i post del utente
+    async function getAllMyBlogs() {
+        try {
+            const response = await fetch(`${APIURL}blogpost/profile/blogs`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                    'Content-Type': 'application/json'
+                },
+
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const blogsData = await response.json();
+            console.log(blogsData);
+            setBlogs(blogsData);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+
+
+    //^-----------------------------------------------------------------------------------------------------------------------//
+    //^al montaggio del componente
+    useEffect(() => {
+        getLoggedUserData();
+        getAllMyBlogs()
+    }, []);
+
+
     return (
         <Container fluid="sm">
             <div>
                 <Tabs
-                    defaultActiveKey="profile"
+                    defaultActiveKey="blogs"
                     id="uncontrolled-tab-example"
                     className="mb-3">
                     <Tab eventKey="account" title="Account" >
@@ -241,6 +276,8 @@ export default function MyProfile() {
                                     <Alert id='accountCreated' className='d-none' variant='success '> il tuo account è stato modificato correttamente </Alert>
 
                                     <Alert id='alertUserNameToken' className='d-none' variant='danger'>Questo user name non è disponibile!</Alert>
+
+                                    <Alert id='alertError' className='d-none' variant='danger'>Qualcosa è andata storta!</Alert>
                                 </Form>
 
 
@@ -257,13 +294,39 @@ export default function MyProfile() {
                         </Modal>
                     </Tab>
 
-                    <Tab eventKey="blogs" title="Blogs">
-                        Tab content for blogs
-                        <h2>1</h2>
+                    <Tab eventKey="blogs" title="Blogs" >
+                        <div className='d-flex justify-content-between align-items-center my-5'>
+                            <h2>I tuoi Post:</h2>
+                            <Button as={Link} to="/new" className="blog-navbar-add-button bg-dark" size="lg">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-plus-lg"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
+                                </svg>
+                                Nuovo Articolo
+                            </Button>
+                        </div>
+                        <div>
+                            <Row>
+                                {blogs.map((blog) => (
+                                    <Col
+                                        key={blog._id}
+                                        md={3}
+                                        style={{
+                                            marginBottom: 50,
+                                        }}
+                                    >
+                                        <BlogItem {...blog} />
+                                    </Col>
+                                ))}
+                            </Row>
+                        </div>
                     </Tab>
-                    {/* <Tab eventKey="contact" title="Contact">
-                        Tab content for Contact
-                    </Tab> */}
                 </Tabs>
             </div>
         </Container>

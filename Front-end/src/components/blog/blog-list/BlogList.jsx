@@ -1,6 +1,5 @@
 import { React, useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
-import posts from "../../../data/posts.json";
 import BlogItem from "../blog-item/BlogItem";
 
 

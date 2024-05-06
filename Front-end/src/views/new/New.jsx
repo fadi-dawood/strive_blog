@@ -59,7 +59,6 @@ function NewBlogPost() {
       setdurataUnit(blogData.readTime.unit || "");
       //!non funziona
       setText(blogData.content || "");
-
     } catch (err) {
       console.error('There was a problem with your fetch operation:', err);
     }
