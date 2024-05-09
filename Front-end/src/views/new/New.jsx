@@ -5,25 +5,27 @@ import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import "./styles.css";
 import draftToHtml from "draftjs-to-html"
 import { useParams } from "react-router-dom";
-import { EditorState, convertFromHTML, ContentState } from 'draft-js';
-import { convertFromRaw, convertToRaw } from 'draft-js';
+import { useNavigate } from "react-router-dom";
 import { URLSContext } from "../../ContextProvider/URLContextProvider";
 
 
 
 function NewBlogPost() {
+  //^-----------------------------------------------------------------------------------------------------------------------//
+  //^ variabili
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [durata, setDurata] = useState("");
   const [durataUnit, setdurataUnit] = useState("");
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
-
   const { APIURL } = useContext(URLSContext);
-
   // l'id del post nel caso di voler modificare un post specifico
   const { id } = useParams();
+  const navigate = useNavigate();
 
+
+  //^-----------------------------------------------------------------------------------------------------------------------//
   const handleChange = useCallback(value => {
     setText(draftToHtml(value));
     // console.log(convertToRaw(value.getCurrentContent()))
@@ -35,6 +37,8 @@ function NewBlogPost() {
   };
 
 
+
+  //^-----------------------------------------------------------------------------------------------------------------------//
   //^modifica un post esistente (precompilazione form con i vecchi dati)
   async function preCompilationForm() {
     try {
@@ -59,6 +63,7 @@ function NewBlogPost() {
       setdurataUnit(blogData.readTime.unit || "");
       //!non funziona
       setText(blogData.content || "");
+
     } catch (err) {
       console.error('There was a problem with your fetch operation:', err);
     }
@@ -66,6 +71,8 @@ function NewBlogPost() {
   };
 
 
+
+  //^-----------------------------------------------------------------------------------------------------------------------//
   //^modifica un post esistente (avviare la funzione per la precompilazione del form)
   useEffect(() => {
     if (id) {
@@ -73,13 +80,14 @@ function NewBlogPost() {
     }
   }, []);
 
+
+
+  //^-----------------------------------------------------------------------------------------------------------------------//
   //^modifica un post esistente (chiamata put per l'aggornamento del blog)
   async function sendModifiedBlog() {
-    console.log("ciao");
-
 
     // contollare che tutto il form è stato compilato
-    if (!title || !category || !text || !durata || !durataUnit) {
+    if (!title || !category || !text || !durata || !durataUnit || !image) {
       let labels = document.getElementsByTagName("label");
       Array.from(labels).forEach(label => {
         if (!label.classList.contains("txt-red")) {
@@ -96,7 +104,10 @@ function NewBlogPost() {
     formData.append("content", text);
     formData.append("readTime[value]", durata);
     formData.append("readTime[unit]", durataUnit);
-    formData.append("cover", image);
+    // non aggiungere la foto alla payload se non va caricata dall'utente 
+    if (image) {
+      formData.append("cover", image);
+    }
 
     try {
       const response = await fetch(`${APIURL}blogPost/${id}/modify`, {
@@ -112,8 +123,8 @@ function NewBlogPost() {
         throw new Error('Network response was not ok');
       };
 
-      console.log('Blog post submitted successfully!');
-
+      resetForm();
+      navigate(`/blogpost/${id}`)
     } catch (error) {
       console.error('There was a problem with your fetch operation:', error);
     };
@@ -123,14 +134,13 @@ function NewBlogPost() {
 
 
 
-
+  //^-----------------------------------------------------------------------------------------------------------------------//
   //^ Mandare un nuovo post:
   const handleSubmit = async event => {
-    console.log("ciao");
     event.preventDefault();
 
     // contollare che tutto il form è stato compilato
-    if (!title || !category || !text || !durata || !durataUnit) {
+    if (!title || !category || !text || !durata || !durataUnit || !image) {
       let labels = document.getElementsByTagName("label");
       console.log(labels);
       Array.from(labels).forEach(label => {
@@ -153,7 +163,7 @@ function NewBlogPost() {
 
 
     try {
-      const response = await fetch('http://localhost:3001/blogPost/', {
+      const response = await fetch(`${APIURL}blogPost`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("token")}`
@@ -163,9 +173,15 @@ function NewBlogPost() {
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
+      } else {
+
+        const newPost = await response.json();
+
+        resetForm();
+
+        navigate(`/blogpost/${newPost._id}`)
       }
 
-      console.log('Blog post submitted successfully!');
 
     } catch (error) {
       console.error('There was a problem with your fetch operation:', error);
@@ -174,12 +190,17 @@ function NewBlogPost() {
 
   };
 
+
+
+  //^-----------------------------------------------------------------------------------------------------------------------//
   //^ resettare il form
   function resetForm() {
-    let labels = document.getElementsByTagName("label");
-    Array.from(labels).forEach(label => {
-      label.classList.remove("txt-red");
-    });
+    setTitle("");
+    setCategory("");
+    setDurata("");
+    setdurataUnit("");
+    setImage(null);
+    setText("");
   };
 
   if (!localStorage.getItem("token")) { return null; }
@@ -206,9 +227,9 @@ function NewBlogPost() {
               <option value="Film" >Cultura e Lingue</option>
               <option value="Altro" >Altro</option>
             </Form.Control>
-          </Form.Group>s
+          </Form.Group>
 
-          <Form.Group>
+          <Form.Group className="mt-3">
             <Form.Label>Durata lettura*</Form.Label>
             <div className="d-flex gap-5">
               <Form.Control value={durata} size="lg" placeholder="durata lettura" type="number" min={1} onChange={e => (setDurata(e.target.value))} />
@@ -235,33 +256,36 @@ function NewBlogPost() {
             <Button type="reset" size="lg" variant="outline-dark" onClick={resetForm}>
               Reset
             </Button>
-
-            <Button
-              type="submit"
-              size="lg"
-              variant="dark"
-              style={{
-                marginLeft: "1em",
-              }}
-              onClick={handleSubmit}
-            >
-              Invia
-            </Button>
-            <Button
-              type="button"
-              size="lg"
-              variant="dark"
-              style={{
-                marginLeft: "1em",
-              }}
-              onClick={sendModifiedBlog}
-            >
-              Modifica
-            </Button>
+            {id &&
+              <Button
+                type="button"
+                size="lg"
+                variant="dark"
+                style={{
+                  marginLeft: "1em",
+                }}
+                onClick={sendModifiedBlog}
+              >
+                Modifica
+              </Button>
+            }
+            {!id &&
+              < Button
+                type="submit"
+                size="lg"
+                variant="dark"
+                style={{
+                  marginLeft: "1em",
+                }}
+                onClick={handleSubmit}
+              >
+                Invia
+              </Button>
+            }
           </Form.Group>
 
         </Form>
-      </Container>
+      </Container >
     );
   }
 

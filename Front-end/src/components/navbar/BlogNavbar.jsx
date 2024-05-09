@@ -37,8 +37,10 @@ const NavBar = props => {
 
   function logOutBtn() {
     localStorage.removeItem("token");
-    // aggiornare la pagine per aggirnare il nome nella navbar
-    window.location.reload();
+    // go to home page
+    const origin = window.location.origin;
+    const modifyUrl = `${origin}/`;
+    window.location.href = modifyUrl;
   };
 
 
@@ -48,12 +50,16 @@ const NavBar = props => {
     window.location.href = modifyUrl;
   }
 
-
+  function goToProfilePage() {
+    const origin = window.location.origin;
+    const modifyUrl = `${origin}/myprofile`;
+    window.location.href = modifyUrl;
+  }
 
   return (
     <Navbar expand="lg" className="blog-navbar" fixed="top">
       <Container className="justify-content-between align-items-center">
-        <Navbar.Brand as={Link} to="/home">
+        <Navbar.Brand as={Link} to="/">
           <img className="blog-navbar-brand" alt="logo" src={logo} />
         </Navbar.Brand>
 
@@ -63,12 +69,12 @@ const NavBar = props => {
         }
         {localStorage.getItem("token") &&
           <div className="d-flex gap-4 align-items-center">
-            <Nav.Link href="profile" className="d-flex gap-2 align-items-center">
+            <Nav.Link onClick={goToProfilePage} className="d-flex gap-2 align-items-center">
               <img className="img-profile" src={`${user.avatar}`} alt="profilo" />
               <p className="m-0 p-0">{`${user.name} ${user.lastName}`}</p>
             </Nav.Link>
             <NavDropdown align={{ lg: 'end' }} title="" id="dropdown-menu-align-responsive-1">
-              <NavDropdown.Item href="myprofile">Your profile</NavDropdown.Item>
+              <NavDropdown.Item onClick={goToProfilePage}>Your profile</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={logOutBtn}>Log-Out</NavDropdown.Item>
             </NavDropdown>

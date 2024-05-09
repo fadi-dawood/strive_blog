@@ -3,9 +3,10 @@ import { Container } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
-import { Link, json } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import "./Register.css"
 import { URLSContext } from '../../ContextProvider/URLContextProvider';
+import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
     let [name, setName] = useState("");
@@ -17,6 +18,8 @@ export default function Register() {
     let [verificapass, setVerificapass] = useState("");
 
     const { APIURL } = useContext(URLSContext);
+
+    const navigate = useNavigate();
 
 
     async function createAcount() {
@@ -76,12 +79,6 @@ export default function Register() {
                 throw new Error('Network response was not ok');
             } else {
 
-                // mostrare un messaggio che l'operazione è andata a buon fine
-                document.getElementById("accountCreated").classList.remove("d-none");
-                setTimeout(() => {
-                    document.getElementById("accountCreated").classList.add("d-none")
-                }, 5000);
-
                 //pulire il form:
                 setName("");
                 setSurname("");
@@ -90,6 +87,13 @@ export default function Register() {
                 setDateOfBirth("");
                 setPassword("");
                 setVerificapass("");
+
+                // mostrare un messaggio che l'operazione è andata a buon fine
+                document.getElementById("accountCreated").classList.remove("d-none");
+                setTimeout(() => {
+                    document.getElementById("accountCreated").classList.add("d-none");
+                }, 5000);
+
             }
 
         } catch (err) {
@@ -101,7 +105,7 @@ export default function Register() {
 
 
     return (
-        <Container fluid="sm">
+        <Container fluid="sm" className='col-lg-4'>
             <Form className='mt-5'>
                 <Form.Group className="mb-3">
                     <Form.Label>Nome *</Form.Label>
@@ -146,7 +150,7 @@ export default function Register() {
 
                 <Alert id='alertBoxNotFilled' className='d-none' variant='danger'> Alcuni campi sono obligattori!</Alert>
 
-                <Alert id='accountCreated' className='d-none' variant='success '> il tuo account è stato creato correttamente </Alert>
+                <Alert id='accountCreated' className='d-none' variant='success '> il tuo account è stato creato correttamente, adesso puoi efettuare il login!</Alert>
 
                 <Alert id='alertUserNameToken' className='d-none' variant='danger'>Questo user name non è disponibile!</Alert>
 

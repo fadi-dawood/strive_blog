@@ -9,7 +9,8 @@ import { Types } from 'mongoose';
 const blogPostRouter = Router();
 
 // get all posts 
-//! togliere dalla lista i post del logged user
+//^ OK
+//? togliere dalla lista i post del logged user
 blogPostRouter.get("/", async (req, res) => {
     try {
         // mandiamo una risposta con tutta la lista degli attori
@@ -58,9 +59,9 @@ blogPostRouter.get("/:id", async (req, res) => {
 // add new post
 //^ OK
 blogPostRouter.post("/", cloudinaryMiddleware, async (req, res, next) => {
+    console.log(req.body);
     try {
 
-        // preparare l'oggetto del post da salvare nella database
         const post = await blogPost.create({
             ...req.body,
             cover: req.file.path,
@@ -76,6 +77,7 @@ blogPostRouter.post("/", cloudinaryMiddleware, async (req, res, next) => {
         newPostMail();
 
     } catch (err) {
+        res.status(500).send("");
         console.error(err);
         next();
 
@@ -85,7 +87,6 @@ blogPostRouter.post("/", cloudinaryMiddleware, async (req, res, next) => {
 // modify post
 //^ Ok
 blogPostRouter.put("/:id/modify", cloudinaryMiddleware, async (req, res, next) => {
-    console.error(req.body);
     try {
         const updatedPost = await blogPost.findByIdAndUpdate(req.params.id,
             {
@@ -93,7 +94,6 @@ blogPostRouter.put("/:id/modify", cloudinaryMiddleware, async (req, res, next) =
                 cover: req.file.path
             },
             { new: true })
-        console.log(updatedPost);
         res.send(updatedPost);
     } catch (err) {
         console.error(err);
@@ -136,7 +136,7 @@ blogPostRouter.delete("/:id", async (req, res) => {
 
 
 // Get all comments of a blog
-//! Non serve più
+//! Non collegato al frontend
 blogPostRouter.get("/:id/comments", async (req, res, next) => {
     try {
         const post = await blogPost.findById(req.params.id);
@@ -160,7 +160,7 @@ blogPostRouter.get("/:id/comments", async (req, res, next) => {
 
 
 // Get a specific comment of a blog
-//! Non serve più
+//! Non collegato al frontend
 blogPostRouter.get("/:id/comments/:commentId", async (req, res, next) => {
     try {
         const post = await blogPost.findById(req.params.id);

@@ -5,13 +5,14 @@ import { URLSContext } from '../../ContextProvider/URLContextProvider';
 import ListGroup from 'react-bootstrap/ListGroup';
 import { Container, Button } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Col, Row } from "react-bootstrap";
 import BlogItem from '../../components/blog/blog-item/BlogItem';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -21,10 +22,20 @@ export default function MyProfile() {
     const { APIURL } = useContext(URLSContext);
     // i dati del user già loggato 
     const [user, setUser] = useState("");
-    // variabili per il modale
+
+    //& variabili per il modale
+    // modifica dati section
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    // modifica foto section
+    const [showAvatar, setShowAvatar] = useState(false);
+    const handleCloseAvatar = () => setShowAvatar(false);
+    const handleShowAvatar = () => setShowAvatar(true);
+    // delete account section
+    const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+    const handleCloseDeleteAccount = () => setShowDeleteAccount(false);
+    const handleShowDeleteAccount = () => setShowDeleteAccount(true);
     // i variabili per il modale per la modifica dei dati del utente
     const [name, setName] = useState(user.name);
     const [surname, setSurname] = useState("");
@@ -34,6 +45,16 @@ export default function MyProfile() {
     const [password, setPassword] = useState("");
     // variabili per getAllMyBlogs()
     const [blogs, setBlogs] = useState([]);
+    // variabili per modificare l'avatar:
+    const [avatar, setAvatar] = useState(null);
+
+    const navigate = useNavigate();
+
+    const handleImageChange = event => {
+        const file = event.target.files[0];
+        setAvatar(file);
+    };
+
 
 
     //^-----------------------------------------------------------------------------------------------------------------------//
@@ -65,7 +86,7 @@ export default function MyProfile() {
         if (!name || !surname || !email || !username || !dateOfBirth || !password) {
             document.getElementById("alertBoxNotFilled").classList.remove("d-none");
             setTimeout(() => {
-                document.getElementById("alertBoxNotFilled").classList.add("d-none")
+                document.getElementById("alertBoxNotFilled").classList.add("d-none");
             }, 5000);
             return;
         };
@@ -165,15 +186,68 @@ export default function MyProfile() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            
+
             const blogsData = await response.json();
-            console.log(blogsData);
             setBlogs(blogsData);
         } catch (err) {
             console.log(err);
         }
     };
 
+
+    //^-----------------------------------------------------------------------------------------------------------------------//
+    //^modificare la foto del profilo
+    async function avatarModify() {
+        const formData = new FormData();
+        formData.append("avatar", avatar);
+
+        try {
+            const response = await fetch(`${APIURL}authors/avatar`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+                body: formData
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            } else {
+                //pulire il form:
+                setAvatar(null);
+
+                // chiudere il modale
+                handleCloseAvatar();
+                window.location.reload();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+
+    //^-----------------------------------------------------------------------------------------------------------------------//
+    //^cancellare il tuo account
+    async function deleteAccount() {
+        try {
+            const response = await fetch(`${APIURL}authors/`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": localStorage.getItem("token"),
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                handleCloseDeleteAccount();
+                localStorage.removeItem("token");
+                navigate("/");
+                window.location.reload();
+            } else {
+
+            }
+        } catch (err) {
+
+        }
+    };
 
 
     //^-----------------------------------------------------------------------------------------------------------------------//
@@ -182,6 +256,9 @@ export default function MyProfile() {
         getLoggedUserData();
         getAllMyBlogs()
     }, []);
+
+
+
 
 
     return (
@@ -198,12 +275,24 @@ export default function MyProfile() {
                         </div>
                         <div className='d-flex justify-content-between align-items-center'>
                             <h4 className='mt-5 mb-4 ms-2'>Le tue informazioni:</h4>
-                            <Button variant="outline-secondary" className='mx-2' onClick={handleShow}>
-                                <FontAwesomeIcon icon={faPencil} />
-                                <span className="ms-2">Modifica Dati</span>
-                            </Button>
+                            <div>
+                                <Button variant="outline-secondary" className='mx-2' onClick={handleShow}>
+                                    <FontAwesomeIcon icon={faPencil} />
+                                    <span className="ms-2">Modifica Dati</span>
+                                </Button>
+                                <Button variant="outline-secondary" className='mx-2' onClick={handleShowAvatar}>
+                                    <FontAwesomeIcon icon={faPencil} />
+                                    <span className="ms-2">Modifica foto profilo</span>
+                                </Button>
+                                <Button variant="outline-danger" className='mx-2' onClick={handleShowDeleteAccount}>
+                                    <FontAwesomeIcon icon={faTrash} />
+                                    <span className="ms-2">Elimina Account</span>
+                                </Button>
+                            </div>
                         </div>
-                        <ListGroup>
+
+
+                        <ListGroup >
                             <ListGroup.Item>
                                 <span>Nome: </span>
                                 <span className='fw-bold'>{user.name}</span>
@@ -227,6 +316,8 @@ export default function MyProfile() {
                         </ListGroup>
 
 
+
+
                         <Modal show={show} onHide={handleClose}>
                             <Modal.Header closeButton>
                                 <Modal.Title>Modifica dati personali</Modal.Title>
@@ -245,7 +336,7 @@ export default function MyProfile() {
                                     </Form.Group>
 
 
-                                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                                    <Form.Group className="mb-3" controlId="formBasicUsename">
                                         <Form.Label>Usename *</Form.Label>
                                         <Form.Control className='w-75' value={username} type="text" placeholder="Scegli un username" onChange={e => setUsername(e.target.value)} />
                                     </Form.Group>
@@ -258,7 +349,7 @@ export default function MyProfile() {
                                         </Form.Text>
                                     </Form.Group>
 
-                                    <Form.Group className="mb-3" controlId="formBasicPassword">
+                                    <Form.Group className="mb-3" controlId="formBasicDateOfBirth">
                                         <Form.Label>Data di nascita *</Form.Label>
                                         <Form.Control className='w-75' value={dateOfBirth} type="date" placeholder="Data di nascita" onChange={e => setDateOfBirth(e.target.value)} />
                                     </Form.Group>
@@ -292,11 +383,55 @@ export default function MyProfile() {
                                 </Button>
                             </Modal.Footer>
                         </Modal>
+
+
+                        <Modal show={showAvatar} onHide={handleCloseAvatar}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Modifica dati personali</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body className='pe-5'>
+                                <Form.Group controlId="blog-image" className="mt-3">
+                                    <Form.Label>Carica immagine</Form.Label>
+                                    <Form.Control type="file" onChange={handleImageChange} />
+                                </Form.Group>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCloseAvatar}>
+                                    Close
+                                </Button>
+                                <Button variant="primary" onClick={avatarModify}>
+                                    Save new foto
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
+
+                        <Modal show={showDeleteAccount} onHide={handleCloseDeleteAccount}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Elimina il tuo Account</Modal.Title>
+                            </Modal.Header>
+                            <div className='p-4'>
+                                <Form.Text>Sei sicuro di voler cancellare il tuo account!</Form.Text>
+                                <br />
+                                <Form.Text>I tuoi dati non saranno più recuperabili</Form.Text>
+                            </div>
+                            <Modal.Footer>
+                                <Button variant="primary" onClick={handleCloseDeleteAccount}>
+                                    Close
+                                </Button>
+                                <Button variant="danger" onClick={deleteAccount}>
+                                    Cancella account
+                                </Button>
+                            </Modal.Footer>
+                        </Modal>
+
+
                     </Tab>
 
                     <Tab eventKey="blogs" title="Blogs" >
                         <div className='d-flex justify-content-between align-items-center my-5'>
                             <h2>I tuoi Post:</h2>
+
                             <Button as={Link} to="/new" className="blog-navbar-add-button bg-dark" size="lg">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -311,6 +446,9 @@ export default function MyProfile() {
                                 Nuovo Articolo
                             </Button>
                         </div>
+                        {!blogs.length &&
+                            <h3>Non hai ancora pubblicato nessun blog!</h3>
+                        }
                         <div>
                             <Row>
                                 {blogs.map((blog) => (

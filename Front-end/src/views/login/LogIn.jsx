@@ -46,7 +46,7 @@ export default function LogIn() {
                 localStorage.setItem("token", token);
 
                 // rimandare alla home page
-                navigate("/home");
+                navigate("/");
                 // aggiornare la pagine per aggirnare il nome nella navbar
                 window.location.reload();
 
@@ -71,7 +71,7 @@ export default function LogIn() {
 
 
     return (
-        <Container fluid="sm">
+        <Container fluid="sm" className='col-lg-4'>
             <Form className='mt-5'>
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Username</Form.Label>

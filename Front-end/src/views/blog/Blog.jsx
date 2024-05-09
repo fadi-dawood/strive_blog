@@ -47,8 +47,6 @@ const Blog = props => {
       // aggiornare l'id del creattore del blog per confrontarlo dopo con l'id di ogni commento
       setAuthorId(blogData.author.author_id);
 
-      console.log(blogData)
-
       setBlog(blogData);
       setLoading(false);
     } catch (err) {
@@ -152,12 +150,17 @@ const Blog = props => {
 
           <div className="my-5">
             <h3>Tutti i commenti:</h3>
+
+            {!blog.comments.length &&
+              <p>non ci sono commenti al mommento</p>
+            }
+
             {blog.comments.map((comment, i) => (
               <BlogComments key={i} comment={comment} downloadComments={downloadComments} />
             ))}
           </div>
 
-          <hr className="my-5 py-5" />
+
 
           <div lassName="my-5">
             <h4>Aggiungi un commento:</h4>

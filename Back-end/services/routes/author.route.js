@@ -2,6 +2,7 @@ import { Router } from "express";
 import Author from "../models/authors.model.js";
 import cloudinaryMiddleware from "../middlewares/avatar.js";
 import bcrypt from "bcryptjs";
+import blogPost from "../models/blogPost.model.js";
 
 
 // Creiamo un nuovo Router 
@@ -9,7 +10,7 @@ const authorRoute = Router();
 
 
 // Richiesta GET generica
-//! non serve
+//! non collegato al frontend
 authorRoute.get("/", async (req, res) => {
     try {
         // mandiamo una risposta con tutta la lista degli attori
@@ -47,14 +48,13 @@ authorRoute.get("/logged-user", async (req, res) => {
     }
 });
 
-// Richiesta PUT
-//! modifocare profilo
+// Richiesta PUT (modifica dati profilo)
+//^ok
 authorRoute.put("/", async (req, res) => {
-    
+
     try {
         // trovare il user
         let foundUser = await Author.findById(req.user._id);
-        console.log(foundUser);
         if (foundUser) {
 
             // controllare la password
@@ -82,7 +82,7 @@ authorRoute.put("/", async (req, res) => {
                     res.send(author);
                 } else {
                     res.status(400).send("user name non aviable");
-                    
+
                 };
             } else {
                 res.status(406).send("non valid password");
@@ -100,18 +100,30 @@ authorRoute.put("/", async (req, res) => {
 });
 
 // Richiesta DELETE
-//! da fare
-authorRoute.delete("/:id", async (req, res) => {
+//^ok
+authorRoute.delete("/", async (req, res) => {
     try {
         // controllare se l'id è valido
-        let author = await Author.findByIdAndUpdate(req.params.id);
-        if (author) {
+        let author = await Author.findByIdAndUpdate(req.user._id);
 
-            // cancellare l'oggetto se l'id è valido
+        if (author) {
+            // cancellare l'account se l'id è valido
             await Author.deleteOne({
-                _id: req.params.id
+                _id: req.user._id
             })
-            res.send("object deleted");
+
+            // cancellare tutti i commenti del user
+            await blogPost.updateMany(
+                { "comments.user_id": req.user._id },
+                { $pull: { comments: { user_id: req.user._id } } }
+            );
+
+            // cancellare tutti i blogs del user
+            await blogPost.deleteMany(
+                { "author.author_id": req.user._id }
+            );
+
+            res.status(200).send("object deleted");
         } else {
             // se l'id non è valido
             res.status(404).send("Author not found");
@@ -119,23 +131,29 @@ authorRoute.delete("/:id", async (req, res) => {
     } catch (err) {
         console.error(err)
     }
-})
+});
 
 // Patch IMG:
-//! da fare
-authorRoute.patch("/:id/avatar", cloudinaryMiddleware, async (req, res) => {
+//^ok
+authorRoute.patch("/avatar", cloudinaryMiddleware, async (req, res) => {
+    console.log("hi");
     try {
-        let updatedUser = await Author.findByIdAndUpdate(req.params.id,
-            { avatar: req.file.path },
-            { new: true }
-        );
-        console.log(updatedUser);
-        res.send(updatedUser);
+        let foundUser = await Author.findById(req.user._id);
+        if (foundUser) {
+            let updatedUser = await Author.findByIdAndUpdate(req.user._id,
+                { avatar: req.file.path },
+                { new: true }
+            );
+            console.log(updatedUser);
+            res.send(updatedUser);
+        } else {
+            res.status(404).send("user not found");
+        }
     } catch (err) {
         console.log(err);
         next(err);
-    }
-})
+    };
+});
 
 // Export
 export default authorRoute;
