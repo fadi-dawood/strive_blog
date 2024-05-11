@@ -1,9 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Container } from "react-bootstrap";
 import BlogList from "../../components/blog/blog-list/BlogList";
 import "./styles.css";
+import { useParams } from "react-router-dom";
 
 const Home = props => {
+  // Call useParams inside the functional component
+  const { accesstoken } = useParams();
+
+  useEffect(() => {
+    // Use the access token obtained from useParams here
+    if (accesstoken) {
+      localStorage.setItem("token", accesstoken);
+    }
+  }, [accesstoken]);
+
+
   return (
     <Container fluid="sm" >
       {!localStorage.getItem("token") &&

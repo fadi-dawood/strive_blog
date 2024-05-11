@@ -6,6 +6,8 @@ import blogPostRouter from "./services/routes/blogPost.route.js";
 import { authMiddleware } from "./services/middlewares/auth.js";
 import logRoute from "./services/routes/log.route.js";
 import cors from "cors";
+import passport from "passport";
+import googleStrategy from "./services/middlewares/passport.js";
 
 // caricare le variabili da .env
 config();
@@ -23,6 +25,9 @@ app.use(cors({
 
 //definire la porta
 const PORT = 3001;
+
+// usare googlestrategy
+passport.use("google", googleStrategy)
 
 // comunicazioni in json
 app.use(express.json());

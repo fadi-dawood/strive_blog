@@ -7,6 +7,7 @@ import { Alert } from 'react-bootstrap';
 import "./LogIn.css"
 import { URLSContext } from '../../ContextProvider/URLContextProvider';
 import { useNavigate } from 'react-router-dom';
+import GoogleAuth from '../../components/Buttons/GoogleAuth';
 
 export default function LogIn() {
     // variabili del form
@@ -87,9 +88,11 @@ export default function LogIn() {
                 <Alert id="alert-password" className='d-none' variant='danger'>Password errata</Alert>
 
                 <div className='d-flex justify-content-between align-items-center'>
-                    <Button onClick={loginCall} variant="primary" type="button">
-                        Login
-                    </Button>
+                    <div>
+                        <Button className='my-2' onClick={loginCall} variant="primary" type="button">
+                            Login
+                        </Button>
+                    </div>
                     <div className='d-flex justify-content-center align-items-center gap-4'>
                         <p className='m-0'>Oppure sei nuovo?</p>
                         <Link to="/log/register" variant="primary" type="button">
@@ -97,6 +100,8 @@ export default function LogIn() {
                         </Link>
                     </div>
                 </div>
+                
+                <GoogleAuth />
             </Form>
         </Container>
     );

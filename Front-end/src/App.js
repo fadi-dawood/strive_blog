@@ -18,13 +18,16 @@ function App() {
         <Router>
           <NavBar />
           <Routes>
-            <Route path="/" exact element={<Home />} />
             <Route path="/log/login" exact element={<LogIn />} />
             <Route path="/log/Register" exact element={<Register />} />
+
+            <Route path="/:accesstoken" exact element={<Home />} />
+            <Route path="/" exact element={<Home />} />
             <Route path="/blogpost/:id/modify" element={<NewBlogPost />} />
             <Route path="/blogpost/:id" element={<Blog />} />
             <Route path="/new" element={<NewBlogPost />} />
             <Route path="/myprofile" element={<MyProfile />} />
+            
           </Routes>
           <Footer />
         </Router>

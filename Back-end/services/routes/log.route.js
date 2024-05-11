@@ -3,6 +3,7 @@ import Author from "../models/authors.model.js";
 import bcrypt from "bcryptjs";
 import { generateJWT } from "../middlewares/auth.js";
 import { newAuthorMail } from "../mail/newAuthorMail.js";
+import passport from "passport";
 
 
 // Creiamo un nuovo Router 
@@ -45,7 +46,7 @@ logRoute.post("/login", async (req, res, next) => {
 
 // Richiesta POST new user
 //^ OK
-logRoute.post("/register", async (req, res) => {
+logRoute.post("/register", async (req, res, next) => {
     try {
         // controllare se il username sia disponibile
         let chosenUserName = req.body.userName;
@@ -73,7 +74,32 @@ logRoute.post("/register", async (req, res) => {
     } catch (err) {
         console.error(err)
     }
-})
+});
 
+
+// Richiesta login con GOOGLE
+logRoute.get("/googleLogin", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+logRoute.get("/callback",
+    passport.authenticate("google", { session: false }),
+    (req, res, next) => {
+        try {
+            
+            const accToken = req.user.accToken; // Adjust this according to your data structure
+            
+            
+            if (!accToken) {
+                return res.status(500).send("Authentication failed: Access token not found");
+            }
+
+            console.log(accToken);
+            res.redirect(`http://localhost:3000/${accToken}`);
+           // res.send(req.user.acctoken);
+           res.send(accToken);
+        } catch (err) {
+            next(err);
+        }
+    }
+);
 
 export default logRoute;
