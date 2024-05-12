@@ -5,9 +5,6 @@ import { generateJWT } from "./auth.js";
 import bcrypt from "bcryptjs";
 import { Types } from "mongoose";
 
-
-
-
 const options = {
     // credenziali google
     clientID: process.env.G_CLIENT_ID,
@@ -30,7 +27,7 @@ const googleStrategy = new GoogleStrategy(
                 const accToken = await createAccessToken({
                     _id: author._id
                 });
-
+ 
                 passportNext(null, { accToken });
             } else {
                 // crea un nuovo utente

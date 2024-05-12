@@ -9,8 +9,8 @@ import blogPost from "../models/blogPost.model.js";
 const authorRoute = Router();
 
 
-// Richiesta GET generica
-//! non collegato al frontend
+// Richiesta GET tutti gli autori
+
 authorRoute.get("/", async (req, res) => {
     try {
         // mandiamo una risposta con tutta la lista degli attori
@@ -18,7 +18,7 @@ authorRoute.get("/", async (req, res) => {
         res.send(authors);
     } catch (err) {
         console.error(err);
-    }
+    };
 });
 
 // Richiesta GET di un'attore specifico
@@ -62,9 +62,7 @@ authorRoute.put("/", async (req, res) => {
                 req.body.password,
                 foundUser.password
             );
-            console.log(foundUser.password);
 
-            console.log(isPasswordMatching);
             if (isPasswordMatching) {
 
                 // controllare se il nuovo username sia disponibile
@@ -136,7 +134,6 @@ authorRoute.delete("/", async (req, res) => {
 // Patch IMG:
 //^ok
 authorRoute.patch("/avatar", cloudinaryMiddleware, async (req, res) => {
-    console.log("hi");
     try {
         let foundUser = await Author.findById(req.user._id);
         if (foundUser) {
@@ -144,7 +141,6 @@ authorRoute.patch("/avatar", cloudinaryMiddleware, async (req, res) => {
                 { avatar: req.file.path },
                 { new: true }
             );
-            console.log(updatedUser);
             res.send(updatedUser);
         } else {
             res.status(404).send("user not found");

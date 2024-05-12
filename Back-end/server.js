@@ -23,9 +23,6 @@ app.use(cors({
     origin: true
 }));
 
-//definire la porta
-const PORT = 3001;
-
 // usare googlestrategy
 passport.use("google", googleStrategy)
 
@@ -48,8 +45,8 @@ const inittserver = async () => {
         await mongoose.connect(process.env.dbconnection);
 
         // Abilita server
-        app.listen(PORT, () => {
-            console.log(`Example app listening on port ${PORT}`)
+        app.listen(process.env.PORT, () => {
+            console.log(`Example app listening on port ${process.env.PORT}`)
         })
     } catch (err) {
         console.error(err)

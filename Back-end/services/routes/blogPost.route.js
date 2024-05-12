@@ -59,9 +59,7 @@ blogPostRouter.get("/:id", async (req, res) => {
 // add new post
 //^ OK
 blogPostRouter.post("/", cloudinaryMiddleware, async (req, res, next) => {
-    console.log(req.body);
     try {
-
         const post = await blogPost.create({
             ...req.body,
             cover: req.file.path,
@@ -120,23 +118,23 @@ blogPostRouter.delete("/:id", async (req, res) => {
 
 
 // Patch PostImg:
-//! Da fare
-// blogPostRouter.patch("/:id/cover", cloudinaryMiddleware, async (req, res) => {
-//     try {
-//         let updatedPost = await blogPost.findByIdAndUpdate(req.params.id,
-//             { cover: req.file.path },
-//             { new: true }
-//         );
-//         res.send(updatedPost);
-//     } catch (err) {
-//         console.log(err);
-//         next(err);
-//     }
-// })
+
+blogPostRouter.patch("/:id/cover", cloudinaryMiddleware, async (req, res) => {
+    try {
+        let updatedPost = await blogPost.findByIdAndUpdate(req.params.id,
+            { cover: req.file.path },
+            { new: true }
+        );
+        res.send(updatedPost);
+    } catch (err) {
+        console.log(err);
+        next(err);
+    }
+})
 
 
 // Get all comments of a blog
-//! Non collegato al frontend
+
 blogPostRouter.get("/:id/comments", async (req, res, next) => {
     try {
         const post = await blogPost.findById(req.params.id);
@@ -160,7 +158,7 @@ blogPostRouter.get("/:id/comments", async (req, res, next) => {
 
 
 // Get a specific comment of a blog
-//! Non collegato al frontend
+
 blogPostRouter.get("/:id/comments/:commentId", async (req, res, next) => {
     try {
         const post = await blogPost.findById(req.params.id);
